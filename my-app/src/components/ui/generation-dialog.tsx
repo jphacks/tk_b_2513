@@ -31,22 +31,33 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
   const handleDownload = () => {
     setIsSubmitting(true)
     try {
-      // ダウンロード処理
+      // プロキシAPIを使用してダウンロード
+      const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}`
       const link = document.createElement("a")
-      link.href = image.url
+      link.href = downloadUrl
       link.download = `generated-${image.id}.png`
+      link.style.display = 'none'
+      
+      // DOMに追加してクリック
+      document.body.appendChild(link)
       link.click()
+      
+      // クリーンアップ
+      setTimeout(() => {
+        document.body.removeChild(link)
+      }, 100)
 
       toast({
-        title: "ダウンロード完了",
+        title: "ダウンロード開始",
         description: "画像のダウンロードが開始されました",
       })
 
       onOpenChange(false)
     } catch (error) {
+      console.error('Download error:', error)
       toast({
         title: "エラー",
-        description: "ダウンロードに失敗しました",
+        description: "ダウンロードに失敗しました。画像を右クリックして「名前を付けて保存」してください。",
         variant: "destructive",
       })
     } finally {
