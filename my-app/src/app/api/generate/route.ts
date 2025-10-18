@@ -26,6 +26,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ imageUrl });
   } catch (e: any) {
     console.error(e);
-    return NextResponse.json({ error: e?.message ?? "generate failed" }, { status: 500 });
+    
+    // OpenAI APIの課金制限エラーの場合
+    if (e?.code === 'billing_hard_limit_reached') {
+      return NextResponse.json({ 
+        error: "APIの課金制限に達しました。しばらく時間をおいてから再度お試しください。",
+        code: "BILLING_LIMIT_REACHED"
+      }, { status: 402 });
+    }
+    
+    // その他のOpenAI APIエラー
+    if (e?.type === 'image_generation_user_error') {
+      return NextResponse.json({ 
+        error: "画像生成に失敗しました。プロンプトを変更してお試しください。",
+        code: "GENERATION_ERROR"
+      }, { status: 400 });
+    }
+    
+    return NextResponse.json({ 
+      error: e?.message ?? "画像生成に失敗しました。",
+      code: "UNKNOWN_ERROR"
+    }, { status: 500 });
   }
 }
