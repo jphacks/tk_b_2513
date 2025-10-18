@@ -317,14 +317,12 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Generation Dialog */}
       <GenerationDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         image={generatedImage}
       />
 
-      {/* Toast Notifications */}
       <Toaster toasts={toasts} onDismiss={dismiss} />
     </div>
   );

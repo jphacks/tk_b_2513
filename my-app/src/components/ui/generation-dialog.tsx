@@ -8,9 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogPortal,
 } from "@/components/ui/dialog"
-import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import type { ImageMeta } from "@/app/api"
@@ -31,18 +29,15 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
   const handleDownload = () => {
     setIsSubmitting(true)
     try {
-      // プロキシAPIを使用してダウンロード
       const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}`
       const link = document.createElement("a")
       link.href = downloadUrl
       link.download = `generated-${image.id}.png`
       link.style.display = 'none'
       
-      // DOMに追加してクリック
       document.body.appendChild(link)
       link.click()
       
-      // クリーンアップ
       setTimeout(() => {
         document.body.removeChild(link)
       }, 100)
@@ -67,9 +62,7 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPortal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
           <DialogTitle>生成完了</DialogTitle>
           <DialogDescription>画像が生成されました。ダウンロードを行いますか？</DialogDescription>
@@ -91,8 +84,7 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
             ダウンロード
           </Button>
         </DialogFooter>
-        </DialogContent>
-      </DialogPortal>
+      </DialogContent>
     </Dialog>
   )
 }
