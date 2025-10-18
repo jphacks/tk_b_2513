@@ -29,25 +29,54 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
   const handleDownload = () => {
     setIsSubmitting(true)
     try {
-      const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}`
-      const link = document.createElement("a")
-      link.href = downloadUrl
-      link.download = `generated-${image.id}.png`
-      link.style.display = 'none'
+      // 適切なファイル名を生成
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
+      const fileName = `generated-image-${timestamp}.png`
       
-      document.body.appendChild(link)
-      link.click()
+      const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}&filename=${encodeURIComponent(fileName)}`
       
-      setTimeout(() => {
-        document.body.removeChild(link)
-      }, 100)
+      // fetchを使用してダウンロードを実行
+      fetch(downloadUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+          return response.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = fileName
+          link.style.display = 'none'
+          
+          document.body.appendChild(link)
+          link.click()
+          
+          // クリーンアップ
+          setTimeout(() => {
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(url)
+          }, 100)
 
-      toast({
-        title: "ダウンロード開始",
-        description: "画像のダウンロードが開始されました",
-      })
+          toast({
+            title: "ダウンロード完了",
+            description: "画像のダウンロードが完了しました",
+          })
 
-      onOpenChange(false)
+          onOpenChange(false)
+        })
+        .catch(error => {
+          console.error('Download error:', error)
+          toast({
+            title: "エラー",
+            description: "ダウンロードに失敗しました。画像を右クリックして「名前を付けて保存」してください。",
+            variant: "destructive",
+          })
+        })
+        .finally(() => {
+          setIsSubmitting(false)
+        })
     } catch (error) {
       console.error('Download error:', error)
       toast({
@@ -55,7 +84,6 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
         description: "ダウンロードに失敗しました。画像を右クリックして「名前を付けて保存」してください。",
         variant: "destructive",
       })
-    } finally {
       setIsSubmitting(false)
     }
   }
