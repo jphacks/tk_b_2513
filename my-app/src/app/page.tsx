@@ -5,9 +5,11 @@ import Image from 'next/image';
 
 interface SearchResult {
   id: string;
+  userId?: string | null;
   imageUrl: string;
   prompt: string;
   similarity: number;
+  createdAt?: string;
 }
 
 export default function Home() {
@@ -15,11 +17,13 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [fallbackMessage, setFallbackMessage] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
+    setFallbackMessage(null);
     try {
       const response = await fetch('/api/search', {
         method: 'POST',
@@ -32,6 +36,9 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data.results || []);
+        if (data.message) {
+          setFallbackMessage(data.message);
+        }
       }
     } catch (error) {
       console.error('検索エラー:', error);
@@ -141,6 +148,20 @@ export default function Home() {
               <div className="relative">
                 <div className="w-24 h-24 rounded-full border-8 border-gray-200"></div>
                 <div className="absolute top-0 left-0 w-24 h-24 rounded-full border-8 border-t-green-500 border-r-green-400 animate-spin"></div>
+              </div>
+            </div>
+          )}
+
+          {/* フォールバックメッセージ */}
+          {fallbackMessage && (
+            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="text-yellow-800 dark:text-yellow-300 text-sm">
+                  {fallbackMessage}
+                </p>
               </div>
             </div>
           )}
