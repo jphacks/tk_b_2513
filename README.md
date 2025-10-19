@@ -1,6 +1,6 @@
 ## Repic
 
-[![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメン表紙.jpeg)
+![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメン表紙.jpeg)
 
 ## 製品概要
 本プロダクトは、画像生成に不慣れなユーザーを支援する**画像生成支援プラットフォーム**です。  
@@ -29,6 +29,8 @@
 
 ### 製品説明（具体的な製品の説明）
 RePicは、画像生成AI初心者でも簡単に高品質な画像を生成できるWebアプリケーションです。ユーザーが入力したプロンプトに基づいて画像を生成するだけでなく、他のユーザーが生成した類似画像とそのプロンプトを参照できる機能を備えています。これにより、初心者でも**効果的なプロンプトの書き方を学びながら**、意図した画像を効率的に生成することができます。
+
+![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメンペルソナ.jpeg)
 
 ### 特長
 #### 1. 簡単なプロンプトでも利用可能
