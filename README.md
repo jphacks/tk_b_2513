@@ -65,21 +65,22 @@ RePicは、画像生成AI初心者でも簡単に高品質な画像を生成で�
 ### 活用した技術
 #### フレームワーク・ライブラリ・モジュール
 
-### フロントエンド
+フロントエンド
 - Next.js 15.5.6（App Router）
 - React 19.1.0
 - TypeScript 5
 - Tailwind CSS 4
 - shadcn/ui
 - @radix-ui/react-*
-### バックエンド・データベース
+バックエンド・データベース
+- Next.js API Routes
 - Prisma 6.17.1
 - PostgreSQL
 - pgvector
-### 外部API・サービス
+外部API・サービス
 - OpenAI API（DALL·E 3, text-embedding-3-small）
 - Supabase
-### デプロイメント
+デプロイメント
 - Netlify
 
 ### 独自技術
