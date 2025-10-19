@@ -6,7 +6,6 @@ import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import type { ImageMeta } from '@/app/api';
-import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 
 interface SearchResult {
@@ -185,7 +184,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-lg font-medium">画像を検索</h2>
+            <h2 className="text-lg font-medium">まずは画像を検索してみよう</h2>
 
             <div className="bg-white rounded-2xl p-6 space-y-4">
               <input
@@ -201,25 +200,25 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={!searchQuery.trim() || isGenerating}
-                  className="px-6 py-3 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-green-500 text-green-600 font-medium rounded-full transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-green-500 text-green-600 font-medium text-base rounded-full transition-colors"
                 >
                   {isGenerating ? '生成中...' : '新規生成'}
                 </button>
 
-                <Button
+                <button
                   onClick={handleSearch}
                   disabled={isSearching || isGenerating || !searchQuery.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium text-base rounded-full transition-colors border-2 border-transparent"
                 >
                   {isSearching ? (
-                    <>検索中...</>
+                    '検索中...'
                   ) : (
                     <>
-                      <Search className="h-4 w-4 mr-1" />
+                      <Search className="h-4 w-4" />
                       検索
                     </>
                   )}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
