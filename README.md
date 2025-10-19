@@ -3,7 +3,7 @@
 ![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメン表紙.jpeg)
 [ペルソナが使用している想定の動画](https://drive.google.com/file/d/1j5GAPTt5_DzgLQZoCoe0iqYx0Y62U5XT/view?usp=share_link)
 
-[ペルソナストーリー（上記の動画と一緒にご覧ください）]()
+
 
 ## 製品概要
 本プロダクトは、画像生成に不慣れなユーザーを支援する**画像生成支援プラットフォーム**です。  
