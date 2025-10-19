@@ -4,15 +4,15 @@ import { useState } from "react"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Download } from "lucide-react"
+import { Download, Copy, ThumbsUp, ThumbsDown } from "lucide-react"
 import type { ImageMeta } from "@/app/api"
 import { useToast } from "@/hooks/use-toast"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface GenerationDialogProps {
   open: boolean
@@ -28,14 +28,13 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
   if (!image) return null
 
   const handleDownload = async () => {
+    setIsSubmitting(true)
     try {
-      // 適切なファイル名を生成
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
       const fileName = `generated-image-${timestamp}.png`
 
       const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}&filename=${encodeURIComponent(fileName)}`
 
-      // fetchでダウンロードを検証してから実行
       const response = await fetch(downloadUrl)
       if (!response.ok) {
         throw new Error('ダウンロードに失敗しました')
@@ -44,7 +43,6 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
 
-      // <a>タグを使用してダウンロード
       const link = document.createElement("a")
       link.href = url
       link.download = fileName
@@ -53,7 +51,6 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
       document.body.appendChild(link)
       link.click()
 
-      // クリーンアップ
       setTimeout(() => {
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
@@ -73,13 +70,27 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
         description: "ダウンロードに失敗しました。",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmitting(false)
     }
+  }
+
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(image.prompt || "")
+      toast({ title: "コピーしました", description: "プロンプトをクリップボードにコピーしました", variant: "success" })
+    } catch (e) {
+      toast({ title: "コピーに失敗", description: "クリップボードへのアクセスに失敗しました", variant: "destructive" })
+    }
+  }
+
+  const handleFeedback = (type: "up" | "down") => {
+    toast({ title: "フィードバックありがとうございます", description: type === "up" ? "良いプロンプトとして記録しました" : "改善が必要として記録しました" })
   }
 
   const handleContribute = async () => {
     setIsContributing(true)
     try {
-      // 1. 画像をダウンロード
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
       const fileName = `generated-image-${timestamp}.png`
       const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}&filename=${encodeURIComponent(fileName)}`
@@ -96,7 +107,6 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
         document.body.removeChild(link)
       }, 100)
 
-      // 2. データベースに寄稿
       const response = await fetch('/api/contribute', {
         method: 'POST',
         headers: {
@@ -136,13 +146,12 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="max-w-4xl bg-white max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>生成完了</DialogTitle>
-          <DialogDescription>画像が生成されました。ダウンロードを行いますか？</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="aspect-video relative bg-muted rounded-lg overflow-hidden">
             <img 
               src={image.url || "/placeholder.svg"} 
@@ -150,20 +159,48 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
               className="w-full h-full object-contain" 
             />
           </div>
+          <div className="flex flex-col">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-sm font-medium">生成プロンプト</div>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" aria-label="コピー" onClick={handleCopyPrompt}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" aria-label="良い" onClick={() => handleFeedback("up")}>
+                  <ThumbsUp className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" aria-label="良くない" onClick={() => handleFeedback("down")}>
+                  <ThumbsDown className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="max-h-[80vh] overflow-auto p-3 border rounded-md bg-muted/30">
+              <p className="text-sm whitespace-pre-wrap break-words">{image.prompt}</p>
+            </div>
+          </div>
         </div>
 
         <DialogFooter className="flex gap-2">
-          <Button
-            onClick={handleContribute}
-            disabled={isContributing}
-            variant="outline"
-          >
-            ダウンロードして寄稿
-          </Button>
           <Button onClick={handleDownload} disabled={isSubmitting}>
             <Download className="h-4 w-4 mr-2" />
-            ダウンロード
+            ダウンロードのみ
           </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleContribute}
+                  disabled={isContributing}
+                  variant="outline"
+                >
+                  ダウンロードして寄稿
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                寄稿すると他のユーザーがあなたが生成した画像を利用できるようになります
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </DialogFooter>
       </DialogContent>
     </Dialog>

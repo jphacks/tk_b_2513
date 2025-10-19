@@ -60,18 +60,21 @@ export async function POST(request: NextRequest) {
         image_url: string;
         created_at: Date;
         similarity: number;
+        display_name: string | null;
       }>
     >`
       SELECT
-        id,
-        profile_id,
-        prompt,
-        image_url,
-        created_at,
-        1 - (embedding_vector <=> ${vectorString}::vector) as similarity
-      FROM images
-      WHERE embedding_vector IS NOT NULL
-      ORDER BY embedding_vector <=> ${vectorString}::vector
+        i.id,
+        i.profile_id,
+        i.prompt,
+        i.image_url,
+        i.created_at,
+        1 - (i.embedding_vector <=> ${vectorString}::vector) as similarity,
+        p.display_name
+      FROM images i
+      LEFT JOIN profiles p ON i.profile_id = p.id
+      WHERE i.embedding_vector IS NOT NULL
+      ORDER BY i.embedding_vector <=> ${vectorString}::vector
       LIMIT 5
     `;
 
@@ -81,6 +84,8 @@ export async function POST(request: NextRequest) {
     const formattedResults = results.map((row) => ({
       id: row.id,
       userId: row.profile_id,
+      profileId: row.profile_id,
+      displayName: row.display_name,
       prompt: row.prompt,
       imageUrl: row.image_url,
       createdAt: row.created_at.toISOString(),
