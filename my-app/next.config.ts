@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'wtdpygwzmlzonidmofhv.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
