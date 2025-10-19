@@ -230,14 +230,27 @@ export default function Home() {
         <div className="p-8">
           {/* ローディングインジケーター */}
           {(isSearching || isGenerating) && (
-            <div className="flex items-center justify-center py-20">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-full border-8 border-gray-200"></div>
-                <div className="absolute top-0 left-0 w-24 h-24 rounded-full border-8 border-t-green-500 border-r-green-400 animate-spin"></div>
+            <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 opacity-30 blur-xl animate-pulse" />
+
+                  <div className="relative w-20 h-20">
+                    <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-gray-700" />
+                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-500 border-r-emerald-400 animate-spin" />
+                    <div className="absolute inset-3 rounded-full bg-white dark:bg-gray-900" />
+                  </div>
+                </div>
+
+                <div className="mt-6 text-gray-600 dark:text-gray-300 text-sm font-medium">
+                  {isGenerating ? '画像を生成中' : '検索中'}
+                  <span className="inline-flex w-8 justify-start ml-1">
+                    <span className="animate-bounce">.</span>
+                    <span className="animate-bounce [animation-delay:150ms]">.</span>
+                    <span className="animate-bounce [animation-delay:300ms]">.</span>
+                  </span>
+                </div>
               </div>
-              <p className="mt-4 text-gray-500 dark:text-gray-400">
-                {isGenerating ? '画像を生成中...' : '検索中...'}
-              </p>
             </div>
           )}
 
