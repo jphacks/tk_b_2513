@@ -190,7 +190,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-lg font-medium">検索ワード</h2>
+            <h2 className="text-lg font-medium">検索ボックス</h2>
 
               <div className="bg-white rounded-2xl p-6 space-y-4">
                 <textarea
