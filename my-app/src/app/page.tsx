@@ -28,6 +28,13 @@ export default function Home() {
   const [generatedImage, setGeneratedImage] = useState<ImageMeta | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast, toasts, dismiss } = useToast();
+  const situations = [
+    '企業ロゴ',
+    '商品カタログ',
+    'プレゼン資料',
+    'Webサイト',
+    'SNS投稿'
+  ];
   
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -194,6 +201,23 @@ export default function Home() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
                 disabled={isSearching || isGenerating}
               />
+
+                <div>
+                  <h3 className="text-sm text-gray-500 mb-2">シチュエーション</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {situations.map((text) => (
+                      <Button
+                        key={text}
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={() => setSearchQuery(text)}
+                      >
+                        {text}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
 
               <div className="flex gap-3">
                 <button
