@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { PrismaClient } from '@/generated/prisma';
 
 // 環境変数のチェック
-if (!process.env.OPENAI_IMAGE_API_KEY) {
+if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
 }
 
@@ -13,7 +13,7 @@ if (!process.env.DATABASE_URL) {
 
 // OpenAI クライアントの初期化
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_IMAGE_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Prisma クライアントの初期化
