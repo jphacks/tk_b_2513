@@ -72,14 +72,17 @@ RePicは、画像生成AI初心者でも簡単に高品質な画像を生成で�
 - Tailwind CSS 4
 - shadcn/ui
 - @radix-ui/react-*
+
 バックエンド・データベース
 - Next.js API Routes
 - Prisma 6.17.1
 - PostgreSQL
 - pgvector
+
 外部API・サービス
 - OpenAI API（DALL·E 3, text-embedding-3-small）
 - Supabase
+
 デプロイメント
 - Netlify
 
