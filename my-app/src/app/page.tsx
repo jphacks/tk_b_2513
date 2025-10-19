@@ -29,6 +29,7 @@ export default function Home() {
   const [fallbackMessage, setFallbackMessage] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<ImageMeta | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const { toast, toasts, dismiss } = useToast();
   const situations = [
     '企業ロゴ',
@@ -43,6 +44,7 @@ export default function Home() {
 
     setIsSearching(true);
     setFallbackMessage(null);
+    setHasSearched(true);
     try {
       const response = await fetch('/api/search', {
         method: 'POST',
@@ -385,7 +387,7 @@ export default function Home() {
           )}
 
           {/* 検索結果なし */}
-          {!isSearching && !isGenerating && searchResults.length === 0 && searchQuery && (
+          {!isSearching && !isGenerating && searchResults.length === 0 && hasSearched && (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="text-gray-400 mb-4">
                 <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -400,7 +402,7 @@ export default function Home() {
           )}
 
           {/* 初期状態 */}
-          {!searchQuery && !isSearching && !isGenerating && searchResults.length === 0 && (
+          {!hasSearched && !isSearching && !isGenerating && searchResults.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="text-gray-300 mb-6">
                 <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor">
