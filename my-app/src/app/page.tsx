@@ -146,7 +146,15 @@ export default function Home() {
       {/* 左側サイドバー */}
       <aside className="w-[420px] bg-black text-white flex flex-col">
         <div className="p-8">
-          <h1 className="text-3xl font-bold mb-12">RePic</h1>
+          <div className="mb-12">
+            <Image
+              src="/repicLogo.png"
+              alt="RePic"
+              width={150}
+              height={40}
+              className="object-contain"
+            />
+          </div>
 
           <div className="space-y-6">
             <h2 className="text-lg font-medium">画像を検索</h2>
