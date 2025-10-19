@@ -14,7 +14,9 @@ export function ToastComponent({ toast, onDismiss }: ToastProps) {
       className={cn(
         "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all",
         toast.variant === "destructive"
-          ? "border-destructive bg-destructive text-destructive-foreground"
+          ? "border-red-500 bg-red-500 text-white"
+          : toast.variant === "success"
+          ? "border-green-500 bg-green-500 text-white"
           : "border bg-background text-foreground"
       )}
     >
