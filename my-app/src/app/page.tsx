@@ -6,6 +6,8 @@ import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import type { ImageMeta } from '@/app/api';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 
 interface SearchResult {
   id: string;
@@ -209,7 +211,7 @@ export default function Home() {
                   {isGenerating ? '生成中...' : '新規生成'}
                 </button>
 
-                <button
+                <Button
                   onClick={handleSearch}
                   disabled={isSearching || isGenerating || !searchQuery.trim()}
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-full transition-colors"
@@ -218,13 +220,11 @@ export default function Home() {
                     <>検索中...</>
                   ) : (
                     <>
+                      <Search className="h-4 w-4 mr-1" />
                       検索
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="rotate-[-45deg]">
-                        <path d="M8 3L8 13M8 3L12 7M8 3L4 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
