@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Download } from 'lucide-react';
 import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -82,7 +81,6 @@ export default function Home() {
         };
         setSearchResults(prev => [newResult, ...prev]);
         
-        // モーダルを表示
         setGeneratedImage({
           id: imageId,
           url: data.imageUrl,
@@ -110,13 +108,11 @@ export default function Home() {
 
   const handleDownload = async (result: SearchResult) => {
     try {
-      // 適切なファイル名を生成
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
       const fileName = `image-${timestamp}.png`;
 
       const downloadUrl = `/api/download?url=${encodeURIComponent(result.imageUrl)}&filename=${encodeURIComponent(fileName)}`;
 
-      // fetchでダウンロードを検証してから実行
       const response = await fetch(downloadUrl);
       if (!response.ok) {
         throw new Error('ダウンロードに失敗しました');
@@ -125,7 +121,6 @@ export default function Home() {
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
-      // <a>タグを使用してダウンロード
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName;
@@ -134,7 +129,6 @@ export default function Home() {
       document.body.appendChild(link);
       link.click();
 
-      // クリーンアップ
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
@@ -161,7 +155,6 @@ export default function Home() {
       setCopiedId(result.id);
       console.log('コピーしました:', result.prompt);
 
-      // 2秒後にチェックマークを元に戻す
       setTimeout(() => {
         setCopiedId(null);
       }, 2000);
