@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { Download } from 'lucide-react';
 import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
@@ -107,8 +108,51 @@ export default function Home() {
     }
   };
 
-  const handleDownload = (result: SearchResult) => {
-    console.log('ダウンロード:', result.id);
+  const handleDownload = async (result: SearchResult) => {
+    try {
+      // 適切なファイル名を生成
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+      const fileName = `image-${timestamp}.png`;
+
+      const downloadUrl = `/api/download?url=${encodeURIComponent(result.imageUrl)}&filename=${encodeURIComponent(fileName)}`;
+
+      // fetchでダウンロードを検証してから実行
+      const response = await fetch(downloadUrl);
+      if (!response.ok) {
+        throw new Error('ダウンロードに失敗しました');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // <a>タグを使用してダウンロード
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+
+      // クリーンアップ
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+
+      toast({
+        title: 'ダウンロード完了',
+        description: '画像のダウンロードが完了しました',
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: 'エラー',
+        description: 'ダウンロードに失敗しました。',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCopy = async (result: SearchResult) => {
@@ -132,13 +176,6 @@ export default function Home() {
 
   const handleDislike = (result: SearchResult) => {
     console.log('良くない:', result.id);
-  };
-
-  const handleContribute = () => {
-    toast({
-      title: "完了しました。",
-      description: "画像が共有データベースに追加されました",
-    });
   };
 
   return (

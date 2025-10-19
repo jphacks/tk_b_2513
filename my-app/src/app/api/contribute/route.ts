@@ -1,20 +1,112 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import OpenAI from "openai";
+import { PrismaClient } from "@/generated/prisma";
+
+// 環境変数のチェック
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
+}
+if (!process.env.OPENAI_IMAGE_API_KEY) {
+  throw new Error("OPENAI_IMAGE_API_KEY is not set");
+}
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+// Supabase クライアントの初期化（Service Role Key使用）
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// OpenAI クライアントの初期化
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_IMAGE_API_KEY,
+});
+
+// Prisma クライアントの初期化
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: process.env.DATABASE_URL }
+  }
+});
 
 export async function POST(req: Request) {
   try {
-    const { image_id, license, attribution } = await req.json()
-    
-    if (!image_id || !license) {
-      return NextResponse.json({ error: "image_id and license are required" }, { status: 400 })
+    const { imageUrl, prompt } = await req.json();
+
+    if (!imageUrl || !prompt) {
+      return NextResponse.json(
+        { error: "imageUrl and prompt are required" },
+        { status: 400 }
+      );
     }
 
-    // TODO: 実際のデータベースへの保存処理を実装
-    // 現在は仮の実装として成功レスポンスを返す
-    console.log('Image contribution:', { image_id, license, attribution })
-    
-    return NextResponse.json({ success: true })
+    console.log("画像寄稿開始:", { imageUrl, prompt });
+
+    // 1. 画像をダウンロード
+    const imageResponse = await fetch(imageUrl);
+    if (!imageResponse.ok) {
+      throw new Error("Failed to download image");
+    }
+    const imageBlob = await imageResponse.blob();
+    const imageBuffer = Buffer.from(await imageBlob.arrayBuffer());
+
+    // 2. Supabase Storageにアップロード
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
+    const { error: uploadError } = await supabase.storage
+      .from("images")
+      .upload(fileName, imageBuffer, {
+        contentType: "image/png",
+        cacheControl: "3600",
+      });
+
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      throw new Error("Failed to upload image to Supabase Storage");
+    }
+
+    // 3. 公開URLを取得
+    const { data: publicUrlData } = supabase.storage
+      .from("images")
+      .getPublicUrl(fileName);
+
+    const publicUrl = publicUrlData.publicUrl;
+    console.log("画像アップロード完了:", publicUrl);
+
+    // 4. プロンプトをベクトル化
+    const embeddingResponse = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: prompt,
+      encoding_format: "float",
+    });
+
+    const embedding = embeddingResponse.data[0].embedding;
+    console.log("ベクトル化完了。次元数:", embedding.length);
+
+    // 5. Prismaでデータベースに保存
+    const vectorString = `[${embedding.join(",")}]`;
+
+    const savedImage = await prisma.$executeRaw`
+      INSERT INTO images (prompt, image_url, embedding_vector)
+      VALUES (${prompt}, ${publicUrl}, ${vectorString}::vector)
+    `;
+
+    console.log("データベース保存完了:", savedImage);
+
+    return NextResponse.json({
+      success: true,
+      imageUrl: publicUrl,
+    });
   } catch (e: any) {
-    console.error(e)
-    return NextResponse.json({ error: e?.message ?? "contribute failed" }, { status: 500 })
+    console.error("寄稿エラー:", e);
+    return NextResponse.json(
+      { error: e?.message ?? "contribute failed" },
+      { status: 500 }
+    );
   }
 }

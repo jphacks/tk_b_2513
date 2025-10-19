@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const results = await prisma.$queryRaw<
       Array<{
         id: string;
-        user_id: string | null;
+        profile_id: string | null;
         prompt: string;
         image_url: string;
         created_at: Date;
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     >`
       SELECT
         id,
-        user_id,
+        profile_id,
         prompt,
         image_url,
         created_at,
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // 3. フロントエンド用にフォーマット
     const formattedResults = results.map((row) => ({
       id: row.id,
-      userId: row.user_id,
+      userId: row.profile_id,
       prompt: row.prompt,
       imageUrl: row.image_url,
       createdAt: row.created_at.toISOString(),
