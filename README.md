@@ -36,7 +36,9 @@ RePicは、画像生成AI初心者でも簡単に高品質な画像を生成で�
 
 #### デモ
 
-[![デモ動画](https://img.youtube.com/vi/fCU1wVjR_HY/0.jpg)](https://www.youtube.com/watch?v=fCU1wVjR_HY)
+[![RePic デモ動画](https://img.youtube.com/vi/fCU1wVjR_HY/maxresdefault.jpg)](https://www.youtube.com/watch?v=fCU1wVjR_HY)
+
+*↑ 画像をクリックするとYouTubeで動画が再生されます*
 
 以下のリンクから、本プロダクトを使用することができます。
 
