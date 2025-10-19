@@ -23,7 +23,6 @@ export async function POST(req: Request) {
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_IMAGE_API_KEY! });
 
-    // 1. OpenAI DALL-Eで画像を生成
     const out = await openai.images.generate({
       model: "dall-e-3",
       prompt,
@@ -39,9 +38,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No image URL returned" }, { status: 500 });
     }
 
-    console.log("OpenAI画像生成完了:", tempImageUrl);
-
-    // 2. 生成された画像をダウンロード
     const imageResponse = await fetch(tempImageUrl);
     if (!imageResponse.ok) {
       throw new Error("Failed to download generated image");
@@ -49,7 +45,6 @@ export async function POST(req: Request) {
     const imageBlob = await imageResponse.blob();
     const imageBuffer = Buffer.from(await imageBlob.arrayBuffer());
 
-    // 3. Supabase Storageにアップロード
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
     const { error: uploadError } = await supabase.storage
       .from("images")
@@ -63,7 +58,6 @@ export async function POST(req: Request) {
       throw new Error("Failed to upload image to Supabase Storage");
     }
 
-    // 4. 公開URLを取得
     const { data: publicUrlData } = supabase.storage
       .from("images")
       .getPublicUrl(fileName);
@@ -73,7 +67,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ imageUrl: permanentUrl });
   } catch (e: any) {
-    // 詳細なエラー情報をログ出力
     console.error('OpenAI API Error:', {
       message: e?.message,
       code: e?.code,
@@ -82,7 +75,6 @@ export async function POST(req: Request) {
       param: e?.param,
     });
 
-    // OpenAI APIの課金制限エラーの場合
     if (e?.code === 'billing_hard_limit_reached' || e?.code === 'insufficient_quota') {
       return NextResponse.json({
         error: "APIの課金制限に達しました。しばらく時間をおいてから再度お試しください。",
@@ -91,7 +83,6 @@ export async function POST(req: Request) {
       }, { status: 402 });
     }
 
-    // その他のOpenAI APIエラー
     if (e?.type === 'image_generation_user_error') {
       return NextResponse.json({
         error: "画像生成に失敗しました: " + (e?.message || "プロンプトを変更してお試しください。"),
