@@ -6,7 +6,8 @@ import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import type { ImageMeta } from '@/app/api';
-import { Search } from 'lucide-react';
+import { Search, ThumbsUp, ThumbsDown, Copy as CopyIcon, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface SearchResult {
   id: string;
@@ -101,8 +102,6 @@ export default function Home() {
     }
   };
 
-  
-
   const handleDownload = async (result: SearchResult) => {
     try {
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
@@ -184,7 +183,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-lg font-medium">まずは画像を検索してみよう</h2>
+            <h2 className="text-lg font-medium">検索ワード</h2>
 
             <div className="bg-white rounded-2xl p-6 space-y-4">
               <input
@@ -305,44 +304,41 @@ export default function Home() {
 
                       {/* アクションボタン */}
                       <div className="flex items-center gap-3 mt-6">
-                        <button
+                        <Button
                           onClick={() => handleCopy(result)}
-                          className={`w-10 h-10 border rounded-lg flex items-center justify-center transition-all ${
+                          variant="outline"
+                          size="icon"
+                          className={
                             copiedId === result.id
                               ? 'border-green-500 bg-green-50 text-green-600 dark:bg-green-900/20'
-                              : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          }`}
+                              : ''
+                          }
                           title={copiedId === result.id ? 'コピーしました！' : 'プロンプトをコピー'}
                         >
                           {copiedId === result.id ? (
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                              <path d="M4 10L8 14L16 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
+                            <Check className="h-4 w-4" />
                           ) : (
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                              <rect x="7" y="7" width="10" height="10" rx="2" strokeWidth="2"/>
-                              <path d="M4 13H3C2.44772 13 2 12.5523 2 12V4C2 3.44772 2.44772 3 3 3H11C11.5523 3 12 3.44772 12 4V5" strokeWidth="2"/>
-                            </svg>
+                            <CopyIcon className="h-4 w-4" />
                           )}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleLike(result)}
-                          className="w-10 h-10 border border-gray-300 dark:border-gray-600 hover:bg-green-50 hover:border-green-500 hover:text-green-600 dark:hover:bg-green-900/20 rounded-lg flex items-center justify-center transition-colors"
+                          variant="outline"
+                          size="icon"
+                          className="hover:bg-green-50 hover:border-green-500 hover:text-green-600 dark:hover:bg-green-900/20"
                           title="いいね"
                         >
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M7 22V11M2 13V20C2 21.1046 2.89543 22 4 22H17.4262C18.907 22 20.1662 20.9197 20.3914 19.4562L21.4683 12.4562C21.7479 10.6389 20.3418 9 18.5032 9H15V4C15 2.89543 14.1046 2 13 2C12.4477 2 12 2.44772 12 3V3.93551C12 4.3046 11.8935 4.66455 11.6935 4.97292L8.30647 9.97292C8.10445 10.2846 8 10.6493 8 11.0227V21C8 21.5523 7.55228 22 7 22Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                        <button
+                          <ThumbsUp className="h-4 w-4" />
+                        </Button>
+                        <Button
                           onClick={() => handleDislike(result)}
-                          className="w-10 h-10 border border-gray-300 dark:border-gray-600 hover:bg-red-50 hover:border-red-500 hover:text-red-600 dark:hover:bg-red-900/20 rounded-lg flex items-center justify-center transition-colors"
+                          variant="outline"
+                          size="icon"
+                          className="hover:bg-red-50 hover:border-red-500 hover:text-red-600 dark:hover:bg-red-900/20"
                           title="良くない"
                         >
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M17 2V13M22 11V4C22 2.89543 21.1046 2 20 2H6.57377C5.09301 2 3.83384 3.08027 3.60864 4.54382L2.53168 11.5438C2.25207 13.3611 3.65815 15 5.49677 15H9V20C9 21.1046 9.89543 22 11 22C11.5523 22 12 21.5523 12 21V20.0645C12 19.6954 12.1065 19.3354 12.3065 19.0271L15.6935 14.0271C15.8955 13.7154 16 13.3507 16 12.9773V3C16 2.44772 16.4477 2 17 2Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
+                          <ThumbsDown className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -361,7 +357,7 @@ export default function Home() {
                 </svg>
               </div>
               <p className="text-gray-500 dark:text-gray-400 text-lg">
-                検索結果が見つかりませんでした
+                検索結果が見つかりませんでした。
               </p>
             </div>
           )}
@@ -376,7 +372,7 @@ export default function Home() {
                 </svg>
               </div>
               <p className="text-gray-400 text-lg">
-                キーワードを入力して検索を開始してください
+                キーワードを入力して検索を開始してください。
               </p>
             </div>
           )}
