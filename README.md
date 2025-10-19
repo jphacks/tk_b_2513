@@ -1,7 +1,6 @@
 ## Repic
 
 ![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメン表紙.jpeg)
-[ペルソナが使用している想定の動画](https://drive.google.com/file/d/1j5GAPTt5_DzgLQZoCoe0iqYx0Y62U5XT/view?usp=share_link)
 
 
 
