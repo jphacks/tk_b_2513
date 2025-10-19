@@ -2,23 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { PrismaClient } from '@/generated/prisma';
 
+// 環境変数のチェック
+if (!process.env.OPENAI_IMAGE_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set");
+}
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set");
+}
+
 // OpenAI クライアントの初期化
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_IMAGE_API_KEY,
 });
 
 // Prisma クライアントの初期化
 const prisma = new PrismaClient({
   datasources: {
-    db: { url: "postgresql://postgres:bw7G07dXMUVkFPWA@db.wtdpygwzmlzonidmofhv.supabase.co:5432/postgres" } // 必ずオブジェクトの形にする
+    db: { url: process.env.DATABASE_URL }
   }
 });
-
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set");
-} else {
-  console.log("DatabaseURLが設定されていません")
-}
 
 
 export async function POST(request: NextRequest) {
@@ -47,6 +50,8 @@ export async function POST(request: NextRequest) {
 
     // 2. PostgreSQL/Supabaseでベクトル類似度検索（コサイン類似度）
     // pgvectorの <=> 演算子を使用（コサイン距離）
+    const vectorString = `[${queryEmbedding.join(',')}]`;
+
     const results = await prisma.$queryRaw<
       Array<{
         id: string;
@@ -63,10 +68,10 @@ export async function POST(request: NextRequest) {
         prompt,
         image_url,
         created_at,
-        1 - (embedding_vector <=> ${`[${queryEmbedding.join(',')}]`}::vector) as similarity
+        1 - (embedding_vector <=> ${vectorString}::vector) as similarity
       FROM images
       WHERE embedding_vector IS NOT NULL
-      ORDER BY embedding_vector <=> ${`[${queryEmbedding.join(',')}]`}::vector
+      ORDER BY embedding_vector <=> ${vectorString}::vector
       LIMIT 5
     `;
 
