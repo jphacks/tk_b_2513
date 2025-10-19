@@ -1,6 +1,6 @@
 ## Repic
 
-[![IMAGE ALT TEXT HERE]()
+[![IMAGE ALT TEXT HERE](https://github.com/jphacks/tk_b_2513/blob/main/かにラーメン表紙.jpeg)
 
 ## 製品概要
 本プロダクトは、画像生成に不慣れなユーザーを支援する**画像生成支援プラットフォーム**です。  
