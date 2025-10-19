@@ -10,8 +10,8 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
 }
-if (!process.env.OPENAI_IMAGE_API_KEY) {
-  throw new Error("OPENAI_IMAGE_API_KEY is not set");
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set");
 }
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set");
@@ -25,7 +25,7 @@ const supabase = createClient(
 
 // OpenAI クライアントの初期化
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_IMAGE_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // Prisma クライアントの初期化

@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const { prompt, size = "1024x1024" } = await req.json();
     if (!prompt) return NextResponse.json({ error: "prompt required" }, { status: 400 });
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_IMAGE_API_KEY! });
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
     const out = await openai.images.generate({
       model: "dall-e-3",
