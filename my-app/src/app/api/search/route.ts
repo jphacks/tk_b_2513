@@ -1,32 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import { PrismaClient } from '@/generated/prisma';
 
-// 仮の画像データ（実際のデータベースからの取得をシミュレート）
-const mockResults = [
-  {
-    id: '1',
-    imageUrl: 'https://picsum.photos/seed/tokyo1/400/400',
-    prompt: '近未来的な東京都の風景。高層ビルが立ち並び、ネオンサインが輝く夜景。\n空中には飛行車が行き交い、地上には人々が行き来する。\n雨に濡れた路面が街の光を反射して美しい。\nサイバーパンク風のデジタルな雰囲気。',
-    similarity: 0.95,
-  },
-  {
-    id: '2',
-    imageUrl: 'https://picsum.photos/seed/tokyo2/400/400',
-    prompt: 'サイバーパンク風の街並み。\nネオンが輝く未来都市、高層ビルが立ち並び、\n空中には飛行車が行き交う。\n雨に濡れた路面が光を反射している。',
-    similarity: 0.88,
-  },
-  {
-    id: '3',
-    imageUrl: 'https://picsum.photos/seed/tokyo3/400/400',
-    prompt: '夜の東京タワーのライトアップ。\n周囲の高層ビル群も美しく輝いている。\n星空も少し見える幻想的な雰囲気。\n遠くには富士山のシルエットも見える。',
-    similarity: 0.82,
-  },
-  {
-    id: '4',
-    imageUrl: 'https://picsum.photos/seed/nature1/400/400',
-    prompt: '雄大な富士山が朝日に照らされている風景。\n手前には湖があり、逆さ富士が美しく映っている。\n周囲には桜の木も見え、春の雰囲気。\n青空と白い雲が広がる穏やかな日。',
-    similarity: 0.75,
-  },
-];
+// 環境変数のチェック
+if (!process.env.OPENAI_IMAGE_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set");
+}
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not set");
+}
+
+// OpenAI クライアントの初期化
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_IMAGE_API_KEY,
+});
+
+// Prisma クライアントの初期化
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: process.env.DATABASE_URL }
+  }
+});
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,41 +36,70 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2〜4秒のランダムな遅延をシミュレート
-    const delay = Math.random() * 2000 + 2000;
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    console.log('検索クエリ:', query);
 
-    // クエリに基づいて結果をフィルタリング（簡易的なシミュレーション）
-    let results = [...mockResults];
+    // 1. OpenAI APIでクエリをベクトル化
+    const embeddingResponse = await openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: query,
+      encoding_format: 'float',
+    });
 
-    // クエリに「東京」が含まれていれば東京関連の結果を優先
-    if (query.includes('東京') || query.includes('tokyo')) {
-      results = results.filter(r => r.prompt.includes('東京'));
-    }
-    // クエリに「富士山」が含まれていれば富士山を優先
-    else if (query.includes('富士山') || query.includes('fuji')) {
-      results = results.filter(r => r.prompt.includes('富士山'));
-    }
-    // それ以外は全結果を返す
-    else {
-      results = mockResults;
-    }
+    const queryEmbedding = embeddingResponse.data[0].embedding;
+    console.log('ベクトル化完了。次元数:', queryEmbedding.length);
 
-    // 結果が空の場合は全結果を返す
-    if (results.length === 0) {
-      results = mockResults;
-    }
+    // 2. PostgreSQL/Supabaseでベクトル類似度検索（コサイン類似度）
+    // pgvectorの <=> 演算子を使用（コサイン距離）
+    const vectorString = `[${queryEmbedding.join(',')}]`;
+
+    const results = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        user_id: string | null;
+        prompt: string;
+        image_url: string;
+        created_at: Date;
+        similarity: number;
+      }>
+    >`
+      SELECT
+        id,
+        user_id,
+        prompt,
+        image_url,
+        created_at,
+        1 - (embedding_vector <=> ${vectorString}::vector) as similarity
+      FROM images
+      WHERE embedding_vector IS NOT NULL
+      ORDER BY embedding_vector <=> ${vectorString}::vector
+      LIMIT 5
+    `;
+
+    console.log('検索結果件数:', results.length);
+
+    // 3. フロントエンド用にフォーマット
+    const formattedResults = results.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      prompt: row.prompt,
+      imageUrl: row.image_url,
+      createdAt: row.created_at.toISOString(),
+      similarity: Number(row.similarity),
+    }));
 
     return NextResponse.json({
       success: true,
       query,
-      results,
-      count: results.length,
+      results: formattedResults,
+      count: formattedResults.length,
     });
   } catch (error) {
     console.error('検索エラー:', error);
     return NextResponse.json(
-      { error: '検索中にエラーが発生しました' },
+      {
+        error: '検索中にエラーが発生しました',
+        details: error instanceof Error ? error.message : '不明なエラー',
+      },
       { status: 500 }
     );
   }
