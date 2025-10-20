@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { GenerationDialog } from '@/components/ui/generation-dialog';
 import { Toaster } from '@/components/ui/toast';
 import { useToast } from '@/hooks/use-toast';
 import type { ImageMeta } from '@/app/api';
-import { Search, ThumbsUp, ThumbsDown, Copy as CopyIcon, Check } from 'lucide-react';
+import { Search, ThumbsUp, ThumbsDown, Copy as CopyIcon, Check, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 interface SearchResult {
   id: string;
@@ -30,7 +33,67 @@ export default function Home() {
   const [generatedImage, setGeneratedImage] = useState<ImageMeta | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ display_name: string } | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { toast, toasts, dismiss } = useToast();
+  const { user, signOut, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // 認証状態をチェックしてリダイレクト
+  useEffect(() => {
+    if (!authLoading) {
+      setIsCheckingAuth(false);
+      if (!user) {
+        // ログインしていない場合はログインページにリダイレクト
+        router.push('/login');
+      }
+    }
+  }, [user, authLoading, router]);
+
+  // ユーザープロファイル情報を取得
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        try {
+          console.log('ユーザーID:', user.id);
+          
+          // profilesテーブルから取得
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', user.id)
+            .maybeSingle(); // single()の代わりにmaybeSingle()を使用
+
+          console.log('プロファイル取得結果:', { data, error });
+
+          if (error) {
+            console.error('プロファイル取得エラー:', error);
+            // エラーの場合はユーザーメタデータから表示名を取得
+            const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
+            setUserProfile({ display_name: fallbackName });
+          } else if (data) {
+            // プロファイルが見つかった場合
+            setUserProfile(data);
+          } else {
+            // プロファイルが見つからない場合（新規ユーザーなど）
+            const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
+            setUserProfile({ display_name: fallbackName });
+          }
+        } catch (error) {
+          console.error('プロファイル取得エラー:', error);
+          // エラーの場合はユーザーメタデータから表示名を取得
+          const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
+          setUserProfile({ display_name: fallbackName });
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
   const situations = [
     '企業ロゴ',
     '商品カタログ',
@@ -178,12 +241,69 @@ export default function Home() {
     console.log('良くない:', result.id);
   };
 
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const { error } = await signOut();
+      if (error) {
+        toast({
+          title: 'エラー',
+          description: 'ログアウトに失敗しました。',
+          variant: 'destructive',
+        });
+        setIsLoggingOut(false);
+      } else {
+        toast({
+          title: 'ログアウト完了',
+          description: 'ログアウトしました。',
+          variant: 'success',
+        });
+        // ログアウト後にログインページにリダイレクト
+        router.push('/login');
+      }
+    } catch (error) {
+      toast({
+        title: 'エラー',
+        description: '予期しないエラーが発生しました。',
+        variant: 'destructive',
+      });
+      setIsLoggingOut(false);
+    }
+  };
+
+  // 認証チェック中、未認証、またはログアウト中の場合はローディング画面を表示
+  if (isCheckingAuth || authLoading || !user || isLoggingOut) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 opacity-30 blur-xl animate-pulse" />
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-gray-700" />
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-500 border-r-emerald-400 animate-spin" />
+              <div className="absolute inset-3 rounded-full bg-white dark:bg-gray-900" />
+            </div>
+          </div>
+          <div className="mt-6 text-gray-600 dark:text-gray-300 text-sm font-medium">
+            {isLoggingOut ? 'ログアウト中' : 
+             isCheckingAuth || authLoading ? '認証状態を確認中' : 'ログインが必要です'}
+            <span className="inline-flex w-8 justify-start ml-1">
+              <span className="animate-bounce">.</span>
+              <span className="animate-bounce [animation-delay:150ms]">.</span>
+              <span className="animate-bounce [animation-delay:300ms]">.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* 左側サイドバー */}
       <aside className="w-[420px] bg-black text-white flex flex-col">
         <div className="p-8">
-          <div className="mb-12">
+          <div className="mb-8">
             <Image
               src="/repicLogo.png"
               alt="Repic"
@@ -192,6 +312,7 @@ export default function Home() {
               className="object-contain"
             />
           </div>
+
 
           <div className="space-y-6">
             <h2 className="text-lg font-medium">Find inspiration...</h2>
@@ -254,6 +375,33 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* ユーザー情報とログアウト */}
+        {user && userProfile && (
+          <div className="mt-auto p-8 border-t border-gray-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">{userProfile.display_name}</p>
+                  <p className="text-gray-400 text-sm">{user.email}</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                variant="outline"
+                size="sm"
+                className="bg-transparent border-white/20 text-white hover:bg-white/20 hover:border-white/40 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
+              </Button>
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* 右側コンテンツエリア */}
@@ -442,6 +590,7 @@ export default function Home() {
         onOpenChange={setIsDialogOpen}
         image={generatedImage}
       />
+
 
       <Toaster toasts={toasts} onDismiss={dismiss} />
     </div>
