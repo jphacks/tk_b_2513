@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
-import { PrismaClient } from "@/generated/prisma";
 
 // 環境変数のチェック
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -13,9 +12,6 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
 }
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set");
-}
 
 // Supabase クライアントの初期化（Service Role Key使用）
 const supabase = createClient(
@@ -26,13 +22,6 @@ const supabase = createClient(
 // OpenAI クライアントの初期化
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Prisma クライアントの初期化
-const prisma = new PrismaClient({
-  datasources: {
-    db: { url: process.env.DATABASE_URL }
-  }
 });
 
 export async function POST(req: Request) {
@@ -106,13 +95,20 @@ export async function POST(req: Request) {
 
     const embedding = embeddingResponse.data[0].embedding;
 
-    // 5. Prismaでデータベースに保存
-    const vectorString = `[${embedding.join(",")}]`;
+    // 5. Supabase経由でデータベースに保存
+    const { error: insertError } = await supabase
+      .from("images")
+      .insert({
+        profile_id: user.id,
+        prompt,
+        image_url: publicUrl,
+        embedding_vector: embedding,
+      });
 
-    await prisma.$executeRaw`
-      INSERT INTO images (profile_id, prompt, image_url, embedding_vector)
-      VALUES (${user.id}, ${prompt}, ${publicUrl}, ${vectorString}::vector)
-    `;
+    if (insertError) {
+      console.error("Supabase insert error:", insertError);
+      throw new Error("Failed to save image metadata");
+    }
     
 
     return NextResponse.json({
