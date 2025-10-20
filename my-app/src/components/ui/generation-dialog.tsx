@@ -128,15 +128,15 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
         const errorData = await response.json()
         toast({
           title: "エラーが発生しました",
-          description: errorData.error || "画像の寄稿に失敗しました",
+          description: errorData.error || "画像の投稿に失敗しました",
           variant: "destructive",
         })
       }
     } catch (error) {
-      console.error('寄稿エラー:', error)
+      console.error('投稿エラー:', error)
       toast({
         title: "エラーが発生しました",
-        description: "画像の寄稿中にエラーが発生しました",
+        description: "画像の投稿中にエラーが発生しました",
         variant: "destructive",
       })
     } finally {
@@ -193,11 +193,11 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
                   disabled={isContributing}
                   variant="outline"
                 >
-                  ダウンロードして寄稿
+                  ダウンロードして投稿
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                寄稿すると他のユーザーがあなたが生成した画像を利用できるようになります
+                投稿すると他のユーザーがあなたが生成した画像を利用できるようになります
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
