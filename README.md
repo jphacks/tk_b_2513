@@ -36,7 +36,7 @@ Repicは、画像生成AI初心者でも簡単に高品質な画像を生成で�
 [![Repic デモ動画](https://img.youtube.com/vi/fCU1wVjR_HY/maxresdefault.jpg)](https://www.youtube.com/watch?v=fCU1wVjR_HY)
 *↑ 画像をクリックするとYouTubeで動画が再生されます*
 
-[デモ動画と一緒に見ていただきたい資料](<./ハッカソンリードミープレゼン（24MB).pdf>)
+[デモ動画と一緒に見ていただきたい資料](<./ハッカソンリードミープレゼン（24MB).pdf>)
 
 また、以下のリンクから、本プロダクトを使用することができます。  
 https://repic-app.netlify.app/
