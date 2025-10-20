@@ -24,9 +24,7 @@ export default function LoginPage() {
 
   // 既にログインしている場合はリダイレクト
   useEffect(() => {
-    console.log('認証状態チェック:', { user: !!user, authLoading, isRedirecting })
     if (user && !authLoading && !isRedirecting) {
-      console.log('リダイレクト実行:', user.id)
       setIsRedirecting(true)
       router.push('/')
     }
@@ -34,13 +32,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('ログイン処理開始:', { email, password: '***' })
     setLoading(true)
 
     try {
-      console.log('signIn関数を呼び出し中...')
       const { error } = await signIn(email, password)
-      console.log('signIn結果:', { error: error?.message })
       
       if (error) {
         console.error('ログインエラー詳細:', {
@@ -50,7 +45,6 @@ export default function LoginPage() {
         })
         
         const errorMessage = getAuthErrorMessage(error, 'signin')
-        console.log('日本語化されたエラーメッセージ:', errorMessage)
         
         // エラートーストを確実に表示
         toast({
@@ -63,7 +57,6 @@ export default function LoginPage() {
       }
       
       // ログイン成功の場合
-      console.log('ログイン成功、認証状態の更新を待機中...')
       toast({
         title: 'ログイン成功',
         description: 'ようこそ！',

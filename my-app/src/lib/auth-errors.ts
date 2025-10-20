@@ -6,11 +6,6 @@ export function getAuthErrorMessage(error: any, type: 'signin' | 'signup' | 'res
            '処理に失敗しました。'
   }
 
-  // AuthApiErrorの場合の特別処理
-  if (error.name === 'AuthApiError') {
-    console.log('AuthApiError検出:', error.message)
-  }
-
   const message = (error.message || '').toLowerCase()
 
   // 共通エラー

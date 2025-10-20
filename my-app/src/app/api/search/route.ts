@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('検索クエリ:', query);
+    
 
     // 1. OpenAI APIでクエリをベクトル化
     const embeddingResponse = await openai.embeddings.create({
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     const queryEmbedding = embeddingResponse.data[0].embedding;
-    console.log('ベクトル化完了。次元数:', queryEmbedding.length);
+    
 
     // 2. PostgreSQL/Supabaseでベクトル類似度検索（コサイン類似度）
     // pgvectorの <=> 演算子を使用（コサイン距離）
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       LIMIT 5
     `;
 
-    console.log('検索結果件数:', results.length);
+    
 
     // 3. フロントエンド用にフォーマット
     const formattedResults = results.map((row) => ({

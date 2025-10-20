@@ -56,7 +56,7 @@ export default function Home() {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          console.log('ユーザーID:', user.id);
+          
           
           // profilesテーブルから取得
           const { data, error } = await supabase
@@ -65,7 +65,7 @@ export default function Home() {
             .eq('id', user.id)
             .maybeSingle(); // single()の代わりにmaybeSingle()を使用
 
-          console.log('プロファイル取得結果:', { data, error });
+          
 
           if (error) {
             console.error('プロファイル取得エラー:', error);
@@ -146,7 +146,7 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('画像の生成に成功しました。:', data.imageUrl);
+        
         
         const imageId = Date.now().toString();
         const newResult: SearchResult = {
@@ -223,7 +223,7 @@ export default function Home() {
     try {
       await navigator.clipboard.writeText(result.prompt);
       setCopiedId(result.id);
-      console.log('コピーしました:', result.prompt);
+      
 
       setTimeout(() => {
         setCopiedId(null);
@@ -234,11 +234,9 @@ export default function Home() {
   };
 
   const handleLike = (result: SearchResult) => {
-    console.log('いいね:', result.id);
   };
 
   const handleDislike = (result: SearchResult) => {
-    console.log('良くない:', result.id);
   };
 
   const handleLogout = async () => {
