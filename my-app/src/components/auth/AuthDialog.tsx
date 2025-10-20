@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
+import { getAuthErrorMessage } from '@/lib/auth-errors'
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 
 interface AuthDialogProps {
@@ -69,7 +70,7 @@ export function AuthDialog({ open, onOpenChange, mode: initialMode }: AuthDialog
       if (error) {
         toast({
           title: 'エラー',
-          description: error.message,
+          description: getAuthErrorMessage(error, mode === 'signup' ? 'signup' : mode === 'reset' ? 'reset' : 'signin'),
           variant: 'destructive',
         })
       }

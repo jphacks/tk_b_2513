@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
-import { Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react'
+import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react'
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState('')
@@ -20,7 +20,6 @@ function ResetPasswordForm() {
   const [isCheckingToken, setIsCheckingToken] = useState(true)
   
   const { toast } = useToast()
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {

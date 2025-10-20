@@ -29,7 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // 認証状態の変更を監視
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('AuthContext: 認証状態変更', { event, user: !!session?.user })
         setUser(session?.user as User || null)
         setLoading(false)
       }
@@ -39,13 +38,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    console.log('AuthContext: signIn開始', { email })
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-      console.log('AuthContext: signIn結果', { data: !!data, error: error?.message })
       
       if (error) {
         console.error('AuthContext: 認証エラー詳細', {
@@ -53,14 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           status: error.status,
           name: error.name
         })
-        // エラーを確実に返す
         return { error }
       }
       
       return { error: null }
     } catch (err: any) {
       console.error('AuthContext: signIn例外', err)
-      // すべてのエラーをキャッチして返す
       return { error: err }
     }
   }

@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 import { getAuthErrorMessage } from '@/lib/auth-errors'
 
 export default function SignupPage() {

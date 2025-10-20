@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { getAuthErrorMessage } from '@/lib/auth-errors'
 import { Toaster } from '@/components/ui/toast'
 

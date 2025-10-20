@@ -1,7 +1,4 @@
-// 認証エラーメッセージの日本語化ユーティリティ
-
 export function getAuthErrorMessage(error: any, type: 'signin' | 'signup' | 'reset' = 'signin'): string {
-  console.log('getAuthErrorMessage呼び出し:', { error, type })
   
   if (!error) {
     return type === 'signin' ? 'ログインに失敗しました。' : 
@@ -15,7 +12,6 @@ export function getAuthErrorMessage(error: any, type: 'signin' | 'signup' | 'res
   }
 
   const message = (error.message || '').toLowerCase()
-  console.log('エラーメッセージ（小文字）:', message)
 
   // 共通エラー
   if (message.includes('invalid email')) {
