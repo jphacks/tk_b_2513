@@ -194,7 +194,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-lg font-medium">検索ボックス</h2>
+            <h2 className="text-lg font-medium">Find inspiration...</h2>
 
               <div className="bg-white rounded-2xl p-6 space-y-4">
                 <textarea
@@ -204,7 +204,7 @@ export default function Home() {
                     e.target.style.height = 'auto';
                     e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
                   }}
-                  placeholder="🔍 キーワードを入力"
+                  placeholder="✨ キーワードを入力"
                   className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all resize-none overflow-hidden min-h-[48px] max-h-[200px]"
                   disabled={isSearching || isGenerating}
                   rows={1}
