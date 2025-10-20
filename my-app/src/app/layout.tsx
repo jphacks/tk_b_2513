@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RePic",
+  title: "Repic",
   description: "Repic is a service that allows you to search for similar images and prompts for image generation.",
 };
 

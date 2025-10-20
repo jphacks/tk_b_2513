@@ -186,7 +186,7 @@ export default function Home() {
           <div className="mb-12">
             <Image
               src="/repicLogo.png"
-              alt="RePic"
+              alt="Repic"
               width={150}
               height={40}
               className="object-contain"
