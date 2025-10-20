@@ -13,6 +13,7 @@ import { Download, Copy, ThumbsUp, ThumbsDown } from "lucide-react"
 import type { ImageMeta } from "@/app/api"
 import { useToast } from "@/hooks/use-toast"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { supabase } from "@/lib/supabase"
 
 interface GenerationDialogProps {
   open: boolean
@@ -91,6 +92,18 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
   const handleContribute = async () => {
     setIsContributing(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+        toast({
+          title: "ログインが必要です",
+          description: "画像を投稿するにはログインしてください",
+          variant: "destructive",
+        })
+        setIsContributing(false)
+        return
+      }
+
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '')
       const fileName = `generated-image-${timestamp}.png`
       const downloadUrl = `/api/download?url=${encodeURIComponent(image.url)}&filename=${encodeURIComponent(fileName)}`
@@ -111,6 +124,7 @@ export function GenerationDialog({ open, onOpenChange, image }: GenerationDialog
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           imageUrl: image.url,

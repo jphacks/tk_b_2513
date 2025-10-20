@@ -46,7 +46,53 @@ export async function POST(req: Request) {
       );
     }
 
-    
+    const authorization = req.headers.get("authorization");
+    if (!authorization?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "Authorization header missing" },
+        { status: 401 }
+      );
+    }
+
+    const accessToken = authorization.replace("Bearer ", "");
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(accessToken);
+
+    if (authError || !user) {
+      console.error("Supabase auth error:", authError);
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const metadata = user.user_metadata ?? {};
+    const displayName =
+      metadata.display_name ?? metadata.full_name ?? user.email ?? undefined;
+    const avatarUrl = metadata.avatar_url ?? undefined;
+
+    const profile = await prisma.profile.upsert({
+      where: { id: user.id },
+      update: {
+        displayName,
+        avatarUrl,
+      },
+      create: {
+        id: user.id,
+        displayName,
+        avatarUrl,
+      },
+    });
+
+    if (!profile?.id) {
+      console.error("Profile lookup failed for user", user.id);
+      return NextResponse.json(
+        { error: "Profile not found for authenticated user" },
+        { status: 422 }
+      );
+    }
 
     // 1. 画像をダウンロード
     const imageResponse = await fetch(imageUrl);
@@ -89,9 +135,9 @@ export async function POST(req: Request) {
     // 5. Prismaでデータベースに保存
     const vectorString = `[${embedding.join(",")}]`;
 
-    const savedImage = await prisma.$executeRaw`
-      INSERT INTO images (prompt, image_url, embedding_vector)
-      VALUES (${prompt}, ${publicUrl}, ${vectorString}::vector)
+    await prisma.$executeRaw`
+      INSERT INTO images (profile_id, prompt, image_url, embedding_vector)
+      VALUES (${profile.id}, ${prompt}, ${publicUrl}, ${vectorString}::vector)
     `;
     
 
