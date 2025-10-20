@@ -36,6 +36,7 @@ export default function Home() {
   const [userProfile, setUserProfile] = useState<{ display_name: string } | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { toast, toasts, dismiss } = useToast();
   const { user, signOut, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -362,26 +363,43 @@ export default function Home() {
         {/* ユーザー情報とログアウト */}
         {user && userProfile && (
           <div className="mt-auto p-8 border-t border-gray-800">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                  <User className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-white font-medium">{userProfile.display_name}</p>
-                  <p className="text-gray-400 text-sm">{user.email}</p>
-                </div>
-              </div>
-              <Button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                variant="outline"
-                size="sm"
-                className="bg-transparent border-white/20 text-white hover:bg-white/20 hover:border-white/40 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            <div className="flex items-start gap-3 relative">
+              <button
+                onClick={() => setIsUserMenuOpen((v) => !v)}
+                className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/30"
+                aria-haspopup="true"
+                aria-expanded={isUserMenuOpen}
+                aria-label="ユーザーメニューを開く"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
-              </Button>
+                <User className="h-5 w-5 text-white" />
+              </button>
+              <div className="flex-1">
+                <p className="text-white font-medium">{userProfile.display_name}</p>
+                <p className="text-gray-400 text-sm">{user.email}</p>
+                {isUserMenuOpen && (
+                  <div className="absolute left-0 bottom-12 z-10 w-44 rounded-xl border border-white/10 bg-black/90 backdrop-blur p-2 shadow-lg">
+                    <Button
+                      onClick={() => router.push('/mypage')}
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start bg-transparent border-white/10 text-white hover:bg-white/10 hover:border-white/20"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      マイページ
+                    </Button>
+                    <Button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      variant="outline"
+                      size="sm"
+                      className="mt-1 w-full justify-start bg-transparent border-white/10 text-white hover:bg-white/10 hover:border-white/20"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
