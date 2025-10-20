@@ -82,8 +82,8 @@ export default function Home() {
   }, [user]);
 
   const situations = [
-    '企業ロゴ',
-    '商品カタログ',
+    '広告バナー',
+    'アイキャッチ画像',
     'プレゼン資料',
     'Webサイト',
     'SNS投稿'
