@@ -231,7 +231,7 @@ export default function Home() {
                 <button
                   onClick={handleGenerate}
                   disabled={!searchQuery.trim() || isGenerating}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed border-2 border-green-500 text-green-600 font-medium text-base rounded-full transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium text-base rounded-full transition-colors"
                 >
                   {isGenerating ? '生成中...' : '新規生成'}
                 </button>
