@@ -68,32 +68,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const metadata = user.user_metadata ?? {};
-    const displayName =
-      metadata.display_name ?? metadata.full_name ?? user.email ?? undefined;
-    const avatarUrl = metadata.avatar_url ?? undefined;
-
-    const profile = await prisma.profile.upsert({
-      where: { id: user.id },
-      update: {
-        displayName,
-        avatarUrl,
-      },
-      create: {
-        id: user.id,
-        displayName,
-        avatarUrl,
-      },
-    });
-
-    if (!profile?.id) {
-      console.error("Profile lookup failed for user", user.id);
-      return NextResponse.json(
-        { error: "Profile not found for authenticated user" },
-        { status: 422 }
-      );
-    }
-
     // 1. 画像をダウンロード
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
@@ -137,7 +111,7 @@ export async function POST(req: Request) {
 
     await prisma.$executeRaw`
       INSERT INTO images (profile_id, prompt, image_url, embedding_vector)
-      VALUES (${profile.id}, ${prompt}, ${publicUrl}, ${vectorString}::vector)
+      VALUES (${user.id}, ${prompt}, ${publicUrl}, ${vectorString}::vector)
     `;
     
 
