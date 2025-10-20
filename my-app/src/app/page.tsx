@@ -40,49 +40,36 @@ export default function Home() {
   const { user, signOut, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  // 認証状態をチェックしてリダイレクト
   useEffect(() => {
     if (!authLoading) {
       setIsCheckingAuth(false);
       if (!user) {
-        // ログインしていない場合はログインページにリダイレクト
         router.push('/login');
       }
     }
   }, [user, authLoading, router]);
 
-  // ユーザープロファイル情報を取得
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
         try {
-          
-          
-          // profilesテーブルから取得
-          const { data, error } = await supabase
+            const { data, error } = await supabase
             .from('profiles')
             .select('display_name')
             .eq('id', user.id)
-            .maybeSingle(); // single()の代わりにmaybeSingle()を使用
-
-          
-
+            .maybeSingle(); 
           if (error) {
             console.error('プロファイル取得エラー:', error);
-            // エラーの場合はユーザーメタデータから表示名を取得
             const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
             setUserProfile({ display_name: fallbackName });
           } else if (data) {
-            // プロファイルが見つかった場合
             setUserProfile(data);
           } else {
-            // プロファイルが見つからない場合（新規ユーザーなど）
             const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
             setUserProfile({ display_name: fallbackName });
           }
         } catch (error) {
           console.error('プロファイル取得エラー:', error);
-          // エラーの場合はユーザーメタデータから表示名を取得
           const fallbackName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'ユーザー';
           setUserProfile({ display_name: fallbackName });
         }
@@ -256,7 +243,6 @@ export default function Home() {
           description: 'ログアウトしました。',
           variant: 'success',
         });
-        // ログアウト後にログインページにリダイレクト
         router.push('/login');
       }
     } catch (error) {
@@ -269,7 +255,6 @@ export default function Home() {
     }
   };
 
-  // 認証チェック中、未認証、またはログアウト中の場合はローディング画面を表示
   if (isCheckingAuth || authLoading || !user || isLoggingOut) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
