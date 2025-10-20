@@ -63,7 +63,6 @@ export async function POST(req: Request) {
       .getPublicUrl(fileName);
 
     const permanentUrl = publicUrlData.publicUrl;
-    console.log("Supabaseアップロード完了:", permanentUrl);
 
     return NextResponse.json({ imageUrl: permanentUrl });
   } catch (e: any) {

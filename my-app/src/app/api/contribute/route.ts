@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("画像寄稿開始:", { imageUrl, prompt });
+    
 
     // 1. 画像をダウンロード
     const imageResponse = await fetch(imageUrl);
@@ -76,7 +76,6 @@ export async function POST(req: Request) {
       .getPublicUrl(fileName);
 
     const publicUrl = publicUrlData.publicUrl;
-    console.log("画像アップロード完了:", publicUrl);
 
     // 4. プロンプトをベクトル化
     const embeddingResponse = await openai.embeddings.create({
@@ -86,7 +85,6 @@ export async function POST(req: Request) {
     });
 
     const embedding = embeddingResponse.data[0].embedding;
-    console.log("ベクトル化完了。次元数:", embedding.length);
 
     // 5. Prismaでデータベースに保存
     const vectorString = `[${embedding.join(",")}]`;
@@ -95,8 +93,7 @@ export async function POST(req: Request) {
       INSERT INTO images (prompt, image_url, embedding_vector)
       VALUES (${prompt}, ${publicUrl}, ${vectorString}::vector)
     `;
-
-    console.log("データベース保存完了:", savedImage);
+    
 
     return NextResponse.json({
       success: true,
