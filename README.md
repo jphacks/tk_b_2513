@@ -115,6 +115,10 @@ jphackstkb2513
 デプロイメント
 - Netlify
 
+デザイン
+- Adobe Illustrator
+- figma
+
 ### 独自技術
 #### ハッカソンで開発した独自機能・技術
 
